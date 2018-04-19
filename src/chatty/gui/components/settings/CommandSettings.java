@@ -26,7 +26,7 @@ public class CommandSettings extends SettingsPanel {
             + "Add Custom Commands as <code>/Command</code> (no parameters), "
             + "separated by spaces (several per line), <code>//Command</code> "
             + "to put into submenu, <code>|</code> (vertical bar) to add "
-            + "separator."
+            + "separator (or <code>-</code> on it's own line)."
             + "</li>"
             + "<li>"
             + "Add timeouts by specifying a number (<code>30</code> interpreted "
@@ -135,7 +135,7 @@ public class CommandSettings extends SettingsPanel {
         GridBagConstraints gbc;
         
         gbc = d.makeGbc(0, 0, 1, 1);
-        ListSelector items = d.addListSetting("commands", 400, 150, true, true);
+        ListSelector items = d.addListSetting("commands", "Custom Command", 400, 150, true, true);
         items.setDataFormatter(new DataFormatter<String>() {
 
             @Override

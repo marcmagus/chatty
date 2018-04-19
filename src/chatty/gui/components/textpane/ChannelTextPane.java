@@ -317,13 +317,13 @@ public class ChannelTextPane extends JTextPane implements LinkListener, Emoticon
         if (highlighted) {
             style = styles.highlight(color);
         } else {
-            style = styles.standard();
+            style = styles.standard(color);
         }
         print(getTimePrefix(), style);
         printUser(user, action, message.whisper, message.id);
         
         // Change style for text if /me and no highlight (if enabled)
-        if (!highlighted && action && styles.actionColored()) {
+        if (!highlighted && color == null && action && styles.actionColored()) {
             style = styles.standard(user.getDisplayColor());
         }
         printSpecials(text, user, style, emotes, false, message.bits > 0);
@@ -1830,7 +1830,7 @@ public class ChannelTextPane extends JTextPane implements LinkListener, Emoticon
          * of two UTF-16 characters. Twitch Chat sees these as only one character
          * so that has to be corrected.
          * 
-         * http://discuss.dev.twitch.tv/t/jtv-2-receiving-messages/1635/10
+         * https://discuss.dev.twitch.tv/t/jtv-2-receiving-messages/1635/10
          * 
          * Example message: "Kappa 𠜎 Kappa"
          */
@@ -2089,7 +2089,7 @@ public class ChannelTextPane extends JTextPane implements LinkListener, Emoticon
         if (styles.timestampFormat() != null) {
             return DateTime.currentTime(styles.timestampFormat())+" ";
         }
-        return " ";
+        return "";
     }
     
     public void refreshStyles() {

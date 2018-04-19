@@ -40,6 +40,10 @@ public class StringUtil {
         return join(Arrays.asList(array), ",");
     }
     
+    public static String join(Object[] array) {
+        return join(Arrays.asList(array), ",");
+    }
+    
     public static String join(Collection<?> items, String delimiter) {
         return join(items, delimiter, -1, -1);
     }
@@ -49,7 +53,7 @@ public class StringUtil {
     }
     
     public static String join(Collection<?> items, String delimiter, int start, int end) {
-        if (items.isEmpty()) {
+        if (items == null || items.isEmpty()) {
             return "";
         }
         start = start > -1 ? start : 0;
@@ -206,6 +210,21 @@ public class StringUtil {
             }
         }
         return false;
+    }
+    
+    public static final String UTF8_BOM = "\uFEFF";
+    
+    /**
+     * Remove the UTF-8 BOM from the beginning of the input.
+     * 
+     * @param input
+     * @return 
+     */
+    public static String removeUTF8BOM(String input) {
+        if (input != null && input.startsWith(UTF8_BOM)) {
+            return input.substring(1);
+        }
+        return input;
     }
     
     public static final void main(String[] args) {

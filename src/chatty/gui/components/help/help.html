@@ -5,7 +5,7 @@
         <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
-    <h1><a name="top">Chatty (Version: 0.9b3)</a></h1>
+    <h1><a name="top">Chatty (Version: 0.9.1)</a></h1>
     <table>
         <tr>
             <td valign="top">
@@ -23,6 +23,7 @@
                     <li><a href="#userlist">Userlist</a></li>
                     <li><a href="#favorites">Favorites / History</a></li>
                     <li><a href="help-whisper.html">Whisper Feature</a></li>
+                    <li><a href="#rooms">Rooms</a></li>
                 </ul>
                 
                 <strong>Chat moderation / utility</strong>
@@ -30,7 +31,7 @@
                     <li><a href="#TAB_Completion">TAB Completion</a></li>
                     <li><a href="#inputHistory">Input History</a></li>
                     <li><a href="#userselection">User Selection Mode</a></li>
-                    <li><a href="#emoticons">Emoticons/Emote Dialog</a></li>
+                    <li><a href="#emoticons">Emoticons / Emote Dialog</a></li>
                     <li><a href="#pausechat">Pause Chat / One-click moderation</a></li>
                     <li><a href="#automod">AutoMod</a></li>
                 </ul>
@@ -132,7 +133,7 @@
     <p>Default hotkeys which can't be changed:</p>
     <ul>
         <li><kbd>PageUp/PageDown</kbd> - Scroll up or down in chat</li>
-        <li><kbd>Arrow Up/Down</kbd> - Go through <a href="#inputHistory">Input History</a></li>
+        <li><kbd>Arrow Up/Down</kbd> (with <kbd>Ctrl</kbd> for multline) - Go through <a href="#inputHistory">Input History</a></li>
         <li><kbd>TAB</kbd> - For <a href="#TAB_Completion">TAB Completion</a></li>
     </ul>
     <p>The following are more default hotkeys, however these can be changed
@@ -179,6 +180,8 @@
                 just like in normal Twitch Chat</li>
         <li><code>/join &lt;channel&gt;</code> - Joins the given channel</li>
         <li><code>/part</code> or <code>/close</code> - Leaves the current channel</li>
+        <li><code>/joinhosted</code> - Join currently hosted channel (if any)</li>
+        <li><code>/favorite [channel]</code> and <code>/unfavorite [channel]</code> - Add/remove a channel to/from the Channel Favorites</li>
         <li><code>/reconnect</code> - Disconnects and reconnects</li>
         <li><code>/fixMods</code> - Temporarily fixes the list of mods (like
                 <code>/mods</code> but without showing the list of mods in chat)</li>
@@ -227,7 +230,7 @@
     <h3><a name="commands-system">Housekeeping/System commands:</a></h3>
     <ul>
         <li><code>/uptime</code> - Shows how long Chatty has been running</li>
-        <li><code>/appinfo</code> - Shows Chatty uptime and current memory stats</li>
+        <li><code>/appinfo</code> - Shows Chatty version, uptime, current memory usage, system info and connection status</li>
 	<li><code>/dir</code> - Show the directory the settings (and other stuff) are saved in</li>
         <li><code>/wdir</code> - Show the current working directory</li>
         <li><code>/openDir</code> - Opens the settings directory in your file browser</li>
@@ -471,7 +474,7 @@
         </tr>
     </table>
     
-    <p><a href="http://frankerfacez.com">FrankerFaceZ</a> provides a custom
+    <p><a href="https://frankerfacez.com">FrankerFaceZ</a> provides a custom
     mod icon for some channels. You can disable this in the settings if you
     want to keep the default one for all channels.</p>
     
@@ -530,11 +533,14 @@
         <a name="TAB_Completion">TAB Completion</a><a name="nickCompletion"></a>
         <a href="#top" class="top">[back to menu]</a>
     </h2>
-    <p>When typing in the inputbox, <kbd>TAB</kbd> completes usernames and
-        <kbd>Shift-TAB</kbd> completes Emoticons (by default). This can be
-        changed in the <a href="help-settings.html#Completion">Completion settings</a>.
-        Once a completion is started, <kbd>TAB</kbd>/<kbd>Shift-TAB</kbd> cycle
-        forwards/backward through the results.</p>
+    <p>When typing in the inputbox, you can use the following keys by default
+        (this can be changed in the <a href="help-settings.html#Completion">Completion settings</a>):</p>
+    <ul>
+        <li><kbd>TAB</kbd> to complete usernames</li>
+        <li><kbd>Shift-TAB</kbd> to complete Emoticons</li>
+    </ul>
+    <p>Once a completion is initiated, <kbd>TAB</kbd> and <kbd>Shift-TAB</kbd>
+        cycle forwards and backward through the results.</p>
 
     <p>Some prefixes always force a certain completion type
         no matter if you use <kbd>TAB</kbd> or <kbd>Shift-TAB</kbd>:</p>
@@ -542,8 +548,8 @@
     <ul>
         <li>Prefixing <code>@</code> completes usernames</li>
         <li>Prefixing <code>/</code> completes command names</li>
+        <li>Prefixing <code>:</code> completes Emoji codes (not Twitch Emotes!)</li>
         <li>Prefixing <code>.</code> performs <a href="help-settings.html#TAB_Completion-custom">Custom completion</a></li>
-        <li>Prefixing <code>:</code> completes Emoji (not Twitch Emotes!)</li>
         <li>Certain commands such as <code>/ban</code> complete usernames for
             their first parameter</li>
         <li>Setting commands such as <code>/set</code> complete setting names
@@ -637,6 +643,10 @@
     commands with similiar parameters, repeat messages you send to chat or just
     look up what you wrote before. You can even save messages to the history
     that you haven't send yet to be able to send them later.</p>
+    
+    <p><em>Note:</em> On a multiline inputbox you have to hold <kbd>Ctrl</kbd>
+        to navigate through the Input History (changeable in Chat Settings).</p>
+    
     <ul>
         <li>How lines are saved in the history:
             <ul>
@@ -687,6 +697,29 @@
     <p>You can also add channels from the history or any
     you enter manually to the favorites, which will always be kept until you
     remove them yourself.</p>
+    
+    <h2>
+        <a name="rooms">Rooms</a>
+        <a href="#top" class="top">[back to menu]</a>
+    </h2>
+    <p>The new <a href="https://blog.twitch.tv/bring-your-community-together-with-rooms-ad60cab1af0a">Rooms</a>
+        can be used in Chatty:</p>
+    
+    <ul>
+        <li>Join rooms for the current stream via the <code>Channels</code> menu
+            and to reload available rooms manually</li>
+        <li>Rooms can be added to the Channel Favorites / History</li>
+        <li>The topic of a room is displayed on join and in the titlebar</li>
+        <li>Rooms chat is logged the same as main chat, with the room name as
+            filename</li>
+        <li>Emotes, badges and so on should be the same as in the main chat</li>
+    </ul>
+    
+    <p>Currently <em>not</em> available in Chatty:</p>
+    <ul>
+        <li>Rooms chat history</li>
+        <li>Getting notified of messages when not having joined the room</li>
+    </ul>
 
     <h2>
         <a name="highlight">Highlight</a>
@@ -736,13 +769,13 @@
     <div class="moreInfo">More information: <a href="help-settings.html#Usercolors">Usercolor Settings</a></div>
     
     <h2>
-        <a name="emoticons">Emoticons/Emote Dialog</a>
+        <a name="emoticons">Emoticons / Emote Dialog</a>
         <a href="#top" class="top">[back to menu]</a>
     </h2>
     <p>Chatty supports the following types of emoticons:</p>
     <ul>
         <li>Twitch Emoticons (Global, Turbo, Subscriber)</li>
-        <li><a href="http://frankerfacez.com/">FrankerFaceZ</a> Emoticons
+        <li><a href="https://frankerfacez.com/">FrankerFaceZ</a> Emoticons
             <ul>
                 <li>Global and Channel-specific Emotes</li>
                 <li>Feature Friday Emotes</li>
@@ -755,7 +788,7 @@
                     may have to restart Chatty for it to work again.</li>
             </ul>
         </li>
-        <li><a href="http://www.nightdev.com/betterttv/">BetterTTV</a> Emoticons
+        <li><a href="https://www.nightdev.com/betterttv/">BetterTTV</a> Emoticons
             <ul>
                 <li>Global and Channel-specific Emotes
                     <br /><em>Note:</em> BTTV can also contain GIF emotes, some
@@ -764,7 +797,14 @@
                 <li><strong>Not supported</strong> are Personal Emotes</li>
             </ul>
         </li>
+        <li>Emoji, turns the Unicode Emoji character into an image (you can
+            enter Emoji either by pasting the character directly, or by entering
+            a shortcode (e.g. <code>:thinking:</code>) into the inputbox, which
+            will be turned into the character when you press Enter to send it.</li>
     </ul>
+    
+    <p><em>Tip:</em> You can use <a href="#TAB_Completion">TAB Completion</a>
+        for Emoticon codes (Shift-TAB by default) and Emoji shortcodes.</p>
     
     <p>You can enable/disable Emoticons in general (displaying the images instead
         of the text) in the settings under <code>Emoticons</code>. You can also
@@ -827,6 +867,9 @@ MiniK   http://static-cdn.jtvnw.net/emoticons/v1/25/1.0     set:793 id:3287</pre
         preference. For example you could also add an image for you own name to
         have it highlighted in chat in a different way.</p>
         
+        <p><em>Note:</em> The <code>emotes.txt</code> should be saved in the
+            UTF-8 encoding (or ASCII I guess).</p>
+        
         <h3>Syntax</h3>
         
         <p>The syntax per line is (you can use as many spaces or TABs as seperators as you want):</p>
@@ -866,6 +909,7 @@ MiniK   http://static-cdn.jtvnw.net/emoticons/v1/25/1.0     set:793 id:3287</pre
             command for it to take effect.
         Emote images may be cached, so if you change the image, you MAY have to
         clear the cache (<code>/clearemotecache CUSTOM</code>).</p>
+        
     <h2>
         <a name="addressbook">Addressbook</a>
         <a href="#top" class="top">[back to menu]</a>
@@ -1483,8 +1527,8 @@ MiniK   http://static-cdn.jtvnw.net/emoticons/v1/25/1.0     set:793 id:3287</pre
         <li>Website: <a href="http://chatty.github.io">http://chatty.github.io</a></li>
         <li>E-Mail: chattyclient@gmail.com</li>
         <li>Twitch Account: <a href="http://twitch.tv/tduva">tduva</a></li>
-        <li>Twitch Chat: Channel <a href="http://www.twitch.tv/chattyclient/chat?popout=">#chattyclient</a> (Highlight "tduva" to get my attention if I'm there)</li>
         <li>Twitter: <a href="https://twitter.com/ChattyClient">@ChattyClient</a></li>
+        <li><a href="https://discord.gg/WTuqGeJ">Discord</a></li>
     </ul>
     <p>If you are referring to a specific version of Chatty, please provide the
     actual version number, which you can find on the top of the main help page in Chatty

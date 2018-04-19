@@ -1,6 +1,7 @@
 
 package chatty;
 
+import chatty.gui.colors.UsercolorManager;
 import chatty.util.api.usericons.Usericon;
 import chatty.util.api.usericons.UsericonManager;
 import chatty.gui.HtmlColors;
@@ -75,7 +76,7 @@ public class User implements Comparable {
      * True if the displayNick only differs in case from the username.
      */
     private boolean hasRegularDisplayNick;
-    private final String channel;
+    private Room room;
     
     private volatile Addressbook addressbook;
     private volatile UsericonManager iconManager;
@@ -107,16 +108,16 @@ public class User implements Comparable {
     private long lastMessage = -1;
     private long lastHighlight = -1;
     
-    public User(String nick, String channel) {
-        this(nick, null, channel);
+    public User(String nick, Room room) {
+        this(nick, null, room);
     }
     
-    public User(String nick, String displayNick, String channel) {
+    public User(String nick, String displayNick, Room room) {
         this.nick = StringUtil.toLowerCase(nick);
         this.displayNick = displayNick == null ? nick : displayNick;
         this.hasDisplayNickSet = displayNick != null;
         checkForRegularDisplayNick();
-        this.channel = StringUtil.toLowerCase(channel);
+        this.room = room;
         setDefaultColor();
         updateFullNick();
     }
@@ -234,12 +235,26 @@ public class User implements Comparable {
         return addressbook;
     }
     
-    public String getChannel() {
-        return channel;
+    public synchronized String getChannel() {
+        return room.getChannel();
     }
     
-    public String getStream() {
-        return channel.replace("#", "");
+    public synchronized String getOwnerChannel() {
+        return room.getOwnerChannel();
+    }
+    
+    public synchronized String getStream() {
+        return room.getStream();
+    }
+    
+    public synchronized Room getRoom() {
+        return room;
+    }
+    
+    public synchronized void setRoom(Room room) {
+        if (room != this.room && room.sameChannel(this.room)) {
+            this.room = room;
+        }
     }
     
     public long getCreatedAt() {
@@ -513,7 +528,7 @@ public class User implements Comparable {
         if (nick.isEmpty()) {
             return;
         }
-        String name = nick.toLowerCase();
+        String name = StringUtil.toLowerCase(nick);
         int n = name.codePointAt(0) + name.codePointAt(name.length() - 1);
         color = defaultColors[n % defaultColors.length];
         hasDefaultColor = true;

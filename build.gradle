@@ -8,6 +8,7 @@ apply plugin: 'java'
 
 // This seems to fix non-ASCII characters in the code not appearing correctly after compiling
 compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
 
 sourceCompatibility = 1.8
 
@@ -174,7 +175,9 @@ task windowsZip(type: Zip, group: 'build') {
         exclude 'lib'
 	into 'app'
     }
-    from 'assets/lib/dlls/JIntellitype32.dll'
+    from ('assets/lib/dlls/JIntellitype32.dll') {
+        into 'app'
+    }
     rename { filename -> filename.replaceAll('JIntellitype\\d{2}', 'JIntellitype') };
     from ('assets-bundle/fallback-fonts') {
         into 'runtime/lib/fonts/fallback'
