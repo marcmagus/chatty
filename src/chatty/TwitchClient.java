@@ -1,6 +1,7 @@
 
 package chatty;
 
+import chatty.gui.components.updating.Version;
 import chatty.ChannelFavorites.Favorite;
 import chatty.lang.Language;
 import chatty.gui.colors.UsercolorManager;
@@ -16,20 +17,22 @@ import chatty.util.api.TokenInfo;
 import chatty.util.api.StreamInfo;
 import chatty.util.api.ChannelInfo;
 import chatty.util.api.TwitchApi;
-import chatty.Version.VersionListener;
 import chatty.WhisperManager.WhisperListener;
 import chatty.gui.GuiUtil;
 import chatty.gui.LaF;
 import chatty.gui.MainGui;
+import chatty.gui.components.updating.Stuff;
 import chatty.util.BTTVEmotes;
 import chatty.util.BotNameManager;
 import chatty.util.DateTime;
+import chatty.util.Debugging;
 import chatty.util.EmoticonListener;
 import chatty.util.ffz.FrankerFaceZ;
 import chatty.util.ffz.FrankerFaceZListener;
 import chatty.util.ImageCache;
 import chatty.util.LogUtil;
 import chatty.util.MiscUtil;
+import chatty.util.OtherBadges;
 import chatty.util.ProcessManager;
 import chatty.util.RawMessageTest;
 import chatty.util.Speedruncom;
@@ -93,11 +96,6 @@ public class TwitchClient {
             + "&redirect_uri="+Chatty.REDIRECT_URI
             + "&force_verify=true"
             + "&scope=chat_login";
-    
-    /**
-     * The interval to check version in (seconds)
-     */
-    private static final int CHECK_VERSION_INTERVAL = 60*60*24*2;
 
     /**
      * Holds the Settings object, which is used to store and retrieve renametings
@@ -183,7 +181,7 @@ public class TwitchClient {
         // Logging
         new Logging(this);
         Thread.setDefaultUncaughtExceptionHandler(new ErrorHandler());
-
+        
         LOGGER.info("### Log start ("+DateTime.fullDateTime()+")");
         LOGGER.info(Chatty.chattyVersion());
         LOGGER.info(Helper.systemInfo());
@@ -195,7 +193,7 @@ public class TwitchClient {
         // Create after Logging is created, since that resets some stuff
         ircLogger = new IrcLogger();
         
-        createTestUser("tduva", "#m_tt");
+        createTestUser("tduva", "");
         
         settings = new Settings(Chatty.getUserDataDirectory()+"settings");
         api = new TwitchApi(new TwitchApiResults(), new MyStreamInfoListener());
@@ -296,21 +294,21 @@ public class TwitchClient {
             Room testRoom =  Room.createRegular("");
             g.addUser(new User("josh", testRoom));
             g.addUser(new User("joshua", testRoom));
-//            User j = new User("joshimuz", "Joshimuz", "");
-//            j.addMessage("abc", false, null);
-//            j.setDisplayNick("Joshimoose");
-//            j.setTurbo(true);
-//            g.addUser("", j);
-//            g.addUser("", new User("jolzi", ""));
-//            g.addUser("", new User("john", ""));
-//            g.addUser("", new User("tduva", ""));
-//            User kb = new User("kabukibot", "Kabukibot", "");
-//            kb.setBot(true);
-//            g.addUser("", kb);
-//            g.addUser("", new User("lotsofs", "LotsOfS", ""));
-//            g.addUser("", new User("anders", ""));
-//            g.addUser("", new User("apex1", ""));
-//            User af = new User("applefan", "");
+            User j = new User("joshimuz", "Joshimuz", testRoom);
+            j.addMessage("abc", false, null);
+            j.setDisplayNick("Joshimoose");
+            j.setTurbo(true);
+            g.addUser(j);
+            g.addUser(new User("jolzi", testRoom));
+            g.addUser(new User("john", testRoom));
+            g.addUser(new User("tduva", testRoom));
+            User kb = new User("kabukibot", "Kabukibot", testRoom);
+            kb.setBot(true);
+            g.addUser(kb);
+            g.addUser(new User("lotsofs", "LotsOfS", testRoom));
+            g.addUser(new User("anders", testRoom));
+            g.addUser(new User("apex1", testRoom));
+            User af = new User("applefan", testRoom);
 //            Map<String, String> badges = new LinkedHashMap<>();
 //            badges.put("bits", "100");
 //            af.setTwitchBadges(badges);
@@ -372,6 +370,10 @@ public class TwitchClient {
         
         // Shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown(this)));
+        
+        if (Chatty.DEBUG) {
+            //textInput(Room.EMPTY, "/test3");
+        }
     }
     
 
@@ -414,42 +416,11 @@ public class TwitchClient {
      * Checks for a new version if the last check was long enough ago.
      */
     private void checkNewVersion() {
-        if (!settings.getBoolean("checkNewVersion")) {
-            return;
-        }
-        /**
-         * Check if enough time has passed since the last check.
-         */
-        long ago = System.currentTimeMillis() - settings.getLong("versionLastChecked");
-        if (ago/1000 < CHECK_VERSION_INTERVAL) {
-            /**
-             * If not checking, check if update was detected last time.
-             */
-            String updateAvailable = settings.getString("updateAvailable");
-            if (!updateAvailable.isEmpty()) {
-                g.setUpdateAvailable(updateAvailable);
-            }
-            return;
-        }
-        settings.setLong("versionLastChecked", System.currentTimeMillis());
-        g.printSystem("Checking for new version..");
-        
-        new Version(new VersionListener() {
-
-            @Override
-            public void versionChecked(String version, String info, boolean isNewVersion) {
-                if (isNewVersion) {
-                    String infoText = "";
-                    if (!info.isEmpty()) {
-                        infoText = "[" + info + "] ";
-                    }
-                    g.printSystem("New version available: "+version+" "+infoText
-                            +"(Go to <Help-Website> to download)");
-                    g.setUpdateAvailable(version);
-                    settings.setString("updateAvailable", version);
-                } else {
-                    g.printSystem("You already have the newest version.");
-                }
+        Version.check(settings, (newVersion,releases) -> {
+            if (newVersion != null) {
+                g.setUpdateAvailable(newVersion, releases);
+            } else {
+                g.printSystem("You already have the newest version.");
             }
         });
     }
@@ -474,6 +445,7 @@ public class TwitchClient {
         //testUser.setStaff(true);
         //testUser.setBroadcaster(true);
         LinkedHashMap<String, String> badgesTest = new LinkedHashMap<>();
+        badgesTest.put("global_mod", "1");
         badgesTest.put("moderator", "1");
         badgesTest.put("premium", "1");
         badgesTest.put("bits", "1000000");
@@ -902,6 +874,12 @@ public class TwitchClient {
         else if (command.equals("openbackupdir")) {
             MiscUtil.openFolder(new File(Chatty.getBackupDirectory()), g);
         }
+        else if (command.equals("opentempdir")) {
+            MiscUtil.openFolder(new File(Chatty.getTempDirectory()), g);
+        }
+        else if (command.equals("opendebugdir")) {
+            MiscUtil.openFolder(new File(Chatty.getDebugLogDirectory()), g);
+        }
         else if (command.equals("copy")) {
             MiscUtil.copyToClipboard(parameter);
         }
@@ -1148,7 +1126,7 @@ public class TwitchClient {
         } else if (command.equals("testcolor")) {
             testUser.setColor(parameter);
         } else if (command.equals("testupdatenotification")) {
-            g.setUpdateAvailable("[test]");
+            g.setUpdateAvailable("[test]", null);
         } else if (command.equals("testannouncement")) {
             g.setAnnouncementAvailable(Boolean.parseBoolean(parameter));
         } else if (command.equals("removechan")) {
@@ -1252,6 +1230,16 @@ public class TwitchClient {
                 parameter = "bits "+g.emoticons.getCheerEmotesString(Helper.toStream(channel));
             } else if (parameter.startsWith("bits ")) {
                 parameter = "bits "+parameter.substring("bits ".length());
+            } else if (parameter.startsWith("emoji ")) {
+                int num = Integer.parseInt(parameter.substring("emoji ".length()));
+                StringBuilder b = new StringBuilder();
+                for (Emoticon emote : g.emoticons.getEmoji()) {
+                    b.append(emote.code);
+                    if (--num == 0) {
+                        break;
+                    }
+                }
+                parameter = "message "+b.toString();
             }
             String raw = RawMessageTest.simulateIRC(channel, parameter, c.getUsername());
             if (raw != null) {
@@ -1327,6 +1315,11 @@ public class TwitchClient {
             api.getUserIDsTest2(parameter);
         } else if (command.equals("getuserids3")) {
             api.getUserIDsTest3(parameter);
+        } else if (command.equals("clearoldsetups")) {
+            Stuff.init();
+            Stuff.clearOldSetups();
+        } else if (command.equals("debugging")) {
+            g.printSystem(Debugging.command(parameter));
         }
     }
     
@@ -1650,6 +1643,7 @@ public class TwitchClient {
                 refreshRequests.add("badges");
                 api.getGlobalBadges(true);
                 api.getRoomBadges(Helper.toStream(channel), true);
+                OtherBadges.requestBadges(r -> usericonManager.setThirdPartyIcons(r), true);
             }
         } else if (parameter.equals("ffz")) {
             if (channel == null || channel.isEmpty()) {
@@ -2679,6 +2673,11 @@ public class TwitchClient {
                 LOGGER.info(String.format("[Subscriber] Added '%s' with category '%s'",
                         name, cat));
             }
+        }
+        
+        @Override
+        public void onUsernotice(String type, User user, String text, String message, String emotes) {
+            g.printUsernotice(type, user, text, message, emotes);
         }
 
         @Override

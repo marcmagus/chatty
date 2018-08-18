@@ -6,7 +6,9 @@ import chatty.util.LogUtil;
 import chatty.util.MiscUtil;
 import chatty.util.SingleInstance;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -51,7 +53,7 @@ public class Chatty {
      * by points. May contain a single "b" for beta versions, which are counted
      * as older (so 0.8.7b4 is older than 0.8.7).
      */
-    public static final String VERSION = "0.9.1";
+    public static final String VERSION = "0.9.2b5";
     
     /**
      * Enable Version Checker (if you compile and distribute this yourself, you
@@ -90,12 +92,16 @@ public class Chatty {
      */
     private static String settingsDir = null;
     
+    private static String[] args;
+    
     /**
      * Parse the commandline arguments and start the actual chat client.
      * 
      * @param args The commandline arguments.
      */
     public static void main(String[] args) {
+        Chatty.args = args;
+        
         Map<String, String> parsedArgs = MiscUtil.parseArgs(args);
         
         /**
@@ -122,7 +128,7 @@ public class Chatty {
                 settingsDir = file.toString();
             }
         }
-
+        
         final TwitchClient client = new TwitchClient(parsedArgs);
         
         // Adding listener just in case, will do nothing if not used
@@ -232,6 +238,10 @@ public class Chatty {
         return getUserDataDirectory()+"backup"+File.separator;
     }
     
+    public static String getTempDirectory() {
+        return System.getProperty("java.io.tmpdir")+File.separator;
+    }
+    
     public static String getDebugLogDirectory() {
         return getUserDataDirectory()+"debuglogs"+File.separator;
     }
@@ -246,5 +256,9 @@ public class Chatty {
     
     public static String uptime() {
         return DateTime.ago(STARTED_TIME);
+    }
+    
+    public static String[] getArgs() {
+        return args;
     }
 }

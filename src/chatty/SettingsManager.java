@@ -1,6 +1,7 @@
 
 package chatty;
 
+import chatty.gui.components.updating.Version;
 import chatty.gui.HtmlColors;
 import chatty.gui.WindowStateManager;
 import chatty.gui.components.settings.NotificationSettings;
@@ -97,6 +98,7 @@ public class SettingsManager {
         settings.addLong("versionLastChecked", 0);
         settings.addString("updateAvailable", "");
         settings.addBoolean("checkNewVersion", true);
+        settings.addBoolean("checkNewBeta", false);
         settings.addBoolean("newsAutoRequest", true);
         settings.addLong("newsLastRead", 0);
         settings.addString("currentVersion", "");
@@ -201,6 +203,7 @@ public class SettingsManager {
         settings.addBoolean("actionColored", false);
         settings.addLong("displayNamesMode", DISPLAY_NAMES_MODE_BOTH);
         settings.addLong("displayNamesModeUserlist", DISPLAY_NAMES_MODE_CAPITALIZED);
+        settings.addBoolean("showImageTooltips", true);
 
         // Badges/Emotes
         settings.addBoolean("emoticonsEnabled",true);
@@ -283,6 +286,7 @@ public class SettingsManager {
         settings.addString("streamsContextMenu", "");
         
         settings.addBoolean("closeUserDialogOnAction", true);
+        settings.addBoolean("openUserDialogByMouse", true);
 
         // History / Favorites
         settings.addMap("channelHistory",new TreeMap(), Setting.LONG);

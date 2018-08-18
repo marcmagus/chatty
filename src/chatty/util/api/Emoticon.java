@@ -49,7 +49,14 @@ public class Emoticon {
     public static final int ID_UNDEFINED = -1;
     
     public static enum Type {
-        TWITCH, FFZ, BTTV, CUSTOM, EMOJI, NOT_FOUND_FAVORITE
+        TWITCH("Twitch"), FFZ("FFZ"), BTTV("BTTV"), CUSTOM("Custom"),
+        EMOJI("Emoji"), NOT_FOUND_FAVORITE("NotFoundFavorite");
+        
+        public String label;
+        
+        Type(String label) {
+            this.label = label;
+        }
     }
     
     public static enum SubType {
@@ -245,7 +252,7 @@ public class Emoticon {
     }
     
     public static String getTwitchEmoteUrlById(int id, int factor) {
-        return "http://static-cdn.jtvnw.net/emoticons/v1/"+id+"/"+factor+".0";
+        return "https://static-cdn.jtvnw.net/emoticons/v1/"+id+"/"+factor+".0";
     }
     
     public String getBttvEmoteUrl(String id, int factor) {
